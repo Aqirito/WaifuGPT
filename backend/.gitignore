@@ -1,5 +1,5 @@
 venv/
-
+*.wav
 *.pyc
 __pycache__/
 
