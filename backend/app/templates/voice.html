@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    let embed = document.createElement("embed");
+    embed.setAttribute("loop", true);
+    embed.setAttribute("autostart", true);
+    embed.setAttribute("height", 0);
+    embed.setAttribute("width", 1);
+    embed.style.position = "absolute";
+    onload = () => {
+      const texts = document.getElementsByClassName("texts")[0];
+      let p = document.createElement("p");
+    
+      window.SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      const recognition = new SpeechRecognition();
+      recognition.interimResults = true;
+    
+      recognition.addEventListener("result", (e) => {
+        texts.appendChild(p);
+        const text = Array.from(e.results)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join("");
+    
+        p.innerText = text;
+        if (e.results[0].isFinal) {
+          synthesize(text)
+          console.log('sd', text);
+          // if (text.toLowerCase().includes("hey, milo") || text.toLowerCase().includes("hello milo")) {
+          // }
+          p = document.createElement("p");
+        }
+      });
+  
+      recognition.addEventListener("end", () => {
+        recognition.start();
+      });
+
+      recognition.start();
+    };
+
+    async function synthesize(message) {
+      const payload = {
+        "messageText": message
+      }
+      const response = await fetch("http://localhost:5000/api/waifu/chats", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      })
+      const audioBlob = await response.blob();
+      const url = URL.createObjectURL(audioBlob);
+      embed.setAttribute("src", url);
+      document.body.appendChild(embed);
+      console.log(embed);
+      const texts = document.getElementsByClassName("texts")[0];
+      // p = document.createElement("p");
+      // p.classList.add("replay");
+      // p.innerText = "I am fine";
+      // texts.appendChild(p);
+    }
+  </script>
+</head>
+<body>
+  <section>
+    <h1>Speech<br> Recognition</h1>
+    <p>Available In Chrome😎 Only</p>
+    <div class="container">
+      <div class="texts">
+      </div>
+    </div>
+  </section>
+</body>
+</html>
