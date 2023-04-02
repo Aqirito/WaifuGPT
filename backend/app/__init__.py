@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 
 def create_app(test_config=None):
     # create and configure the app
@@ -26,8 +26,13 @@ def create_app(test_config=None):
     def hello():
         return 'Banishing Thisss Warldoo!!'
     
+    
+    @app.route('/voice')
+    def voice():
+        return render_template('voice.html')
+    
     from .api import waifu
     app.register_blueprint(waifu.bp)
-    app.add_url_rule('/', endpoint='index')
+    app.add_url_rule('/', endpoint='hello')
     
     return app
