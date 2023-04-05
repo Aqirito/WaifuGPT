@@ -2,13 +2,14 @@ from flask import (Blueprint, request, url_for, abort, send_file)
 from TTS.api import TTS
 import os
 model_name = TTS.list_models()[12]
+from app.engine.persona import userInput
 # Init TTS
 tts = TTS(model_name)
+bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
 
 def Synthesize(message):
-    tts.tts_to_file(text=message, file_path=os.path.join('app/api/output.wav'))
-
-bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
+    bot_answer = userInput(message)
+    tts.tts_to_file(text=bot_answer, file_path=os.path.join('app/api/output.wav'))
 
 @bp.post('/chats')
 def chats():
