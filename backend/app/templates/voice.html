@@ -7,12 +7,12 @@
   <title>Document</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
-    let embed = document.createElement("embed");
-    embed.setAttribute("loop", true);
-    embed.setAttribute("autostart", true);
-    embed.setAttribute("height", 0);
-    embed.setAttribute("width", 1);
-    embed.style.position = "absolute";
+    // let embed = document.createElement("embed");
+    // embed.setAttribute("loop", true);
+    // embed.setAttribute("autostart", true);
+    // embed.setAttribute("height", 0);
+    // embed.setAttribute("width", 1);
+    // embed.style.position = "absolute";
     onload = () => {
       const texts = document.getElementsByClassName("texts")[0];
       let p = document.createElement("p");
@@ -36,7 +36,7 @@
           console.log('sd', text);
           // if (text.toLowerCase().includes("hey, milo") || text.toLowerCase().includes("hello milo")) {
           // }
-          p = document.createElement("p");
+          // p = document.createElement("p");
         }
       });
   
@@ -58,23 +58,26 @@
         },
         body: JSON.stringify(payload)
       })
-      const audioBlob = await response.blob();
-      const url = URL.createObjectURL(audioBlob);
-      embed.setAttribute("src", url);
-      document.body.appendChild(embed);
-      console.log(embed);
+      const res = await response.json();
+      console.log("res", res);
+      // const audioBlob = await response.blob();
+      // const url = URL.createObjectURL(audioBlob);
+      // embed.setAttribute("src", url);
+      // document.body.appendChild(embed);
+      // console.log(embed);
+
       const texts = document.getElementsByClassName("texts")[0];
-      // p = document.createElement("p");
-      // p.classList.add("replay");
-      // p.innerText = "I am fine";
-      // texts.appendChild(p);
+      p = document.createElement("p");
+      p.classList.add("replay");
+      p.innerText = res.bot_res;
+      texts.appendChild(p);
     }
   </script>
 </head>
 <body>
   <section>
-    <h1>Speech<br> Recognition</h1>
-    <p>Available In Chrome😎 Only</p>
+    <h1>WaifuGPT</h1>
+    <p>beta version</p>
     <div class="container">
       <div class="texts">
       </div>

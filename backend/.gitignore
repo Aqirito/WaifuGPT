@@ -2,7 +2,8 @@ venv/
 *.wav
 *.pyc
 __pycache__/
-
+.env
+character.json
 instance/
 
 .pytest_cache/
