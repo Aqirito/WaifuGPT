@@ -17,6 +17,6 @@
 * [README.md](frontend/README.md)
 ##  Project Architecture
 ###  Full app version
-![WaifuGPT full app architecture](diagram/project-diagram-standalone.jpg  "WaifuGPT full app architecture")
+![WaifuGPT full app architecture](diagram/project-diagram.jpg  "WaifuGPT full app architecture")
 ###  Standalone version
-![WaifuGPT standalone architecture](diagram/project-diagram-standalone.jpg  "WaifuGPT standalone architecture")
+![WaifuGPT standalone architecture](diagram/project-diagram-standalone-version.jpg  "WaifuGPT standalone architecture")
