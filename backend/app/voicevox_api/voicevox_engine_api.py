@@ -2,7 +2,11 @@ import requests
 import json
 import re
 from googletrans import Translator
-url = 'http://localhost:50021/'
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
+url = config["FLASK_VX_API_URL"]
+project_path = config["FLASK_PROJECT_PATH"]
 translator = Translator()
 
 """
@@ -82,7 +86,7 @@ def synthesis(new_query_data, **kwargs):
 
     response = requests.post(url + 'synthesis', params=params, headers=headers, data=new_query_data.encode('utf-8'))
 
-    with open('audio.wav', 'wb') as f:
+    with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
         f.write(response.content)
 
 
