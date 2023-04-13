@@ -3,12 +3,13 @@ from .parsing import parse_messages_from_str
 from .prompting import build_prompt_for
 import os
 from dotenv import load_dotenv
-from multiprocessing import Process, freeze_support
 import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 CKPT_PATH = os.getenv('CKPT_PATH')
+
+load_dotenv()
 
 DONT_USE_MODEL = False
 current_path = dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -59,9 +60,3 @@ def userInput(user_input: str):
         json.dump(file_data, outfile)
     # print(bot_message)
     return bot_message
-
-
-
-if __name__=="__main__":
-    load_dotenv()
-    freeze_support()
