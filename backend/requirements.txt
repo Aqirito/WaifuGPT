@@ -4,6 +4,7 @@ Babel==2.12.1
 backports.zoneinfo==0.2.1
 certifi==2022.12.7
 cffi==1.15.1
+chardet==3.0.4
 charset-normalizer==3.1.0
 click==8.1.3
 colorama==0.4.6
@@ -16,16 +17,24 @@ decorator==5.1.1
 docopt==0.6.2
 filelock==3.10.7
 Flask==2.2.3
--e git+https://github.com/Aqirito/WaifuGPT.git@02d88eb50d0732ac00f0721d758f43f1375fe267#egg=flaskr&subdirectory=backend
+-e git+https://github.com/Aqirito/WaifuGPT.git@5b59ae5a6428c29635d39d0daf0d338971182586#egg=flaskr&subdirectory=backend
 fonttools==4.39.3
 fsspec==2023.3.0
 g2pkk==0.1.2
+googletrans==4.0.0rc1
 gruut==2.2.3
 gruut-ipa==0.13.0
 gruut-lang-de==2.0.0
 gruut-lang-en==2.0.0
+h11==0.9.0
+h2==3.2.0
+hpack==3.0.0
+hstspreload==2023.1.1
+httpcore==0.9.1
+httpx==0.13.3
 huggingface-hub==0.13.3
-idna==3.4
+hyperframe==5.2.0
+idna==2.10
 importlib-metadata==6.1.0
 importlib-resources==5.12.0
 inflect==5.6.0
@@ -69,9 +78,11 @@ PyYAML==6.0
 regex==2023.3.23
 requests==2.28.2
 resampy==0.4.2
+rfc3986==1.5.0
 scikit-learn==1.2.2
 scipy==1.10.1
 six==1.16.0
+sniffio==1.3.0
 soundfile==0.12.1
 sympy==1.11.1
 tensorboardX==2.6
@@ -83,7 +94,6 @@ torchvision==0.14.1+cu117
 tqdm==4.65.0
 trainer==0.0.20
 transformers==4.27.4
-TTS==0.12.0
 typing_extensions==4.5.0
 tzdata==2023.3
 tzlocal==4.3
