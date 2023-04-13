@@ -2,14 +2,14 @@ import json
 from .parsing import parse_messages_from_str
 from .prompting import build_prompt_for
 import os
-from dotenv import load_dotenv
 import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+from dotenv import dotenv_values
 
-CKPT_PATH = os.getenv('CKPT_PATH')
+config = dotenv_values(".env")
+CKPT_PATH = config["FLASK_CKPT_PATH"]
 
-load_dotenv()
 
 DONT_USE_MODEL = False
 current_path = dir_path = os.path.dirname(os.path.realpath(__file__))

@@ -1,4 +1,4 @@
-from flask import (Blueprint, request)
+from flask import (Blueprint, request, send_file)
 import os
 import json
 from app.engine.chat import userInput
@@ -7,8 +7,10 @@ import pyaudio
 import wave
 import re
 bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
+from dotenv import dotenv_values
 
-project_path = "c:\\users\\aqirito\\playground\\waifugpt\\backend\\app\\"
+config = dotenv_values(".env")
+project_path = config["FLASK_PROJECT_PATH"]
 
 """
 "char_name"       : "Shikoku Metan"
@@ -28,13 +30,12 @@ def Synthesize(message):
     bot_reply_only = re.sub(r'\*.*?\*', '', bot_reply)
     if not bot_reply_only:
         bot_reply_only = bot_reply
-    print("_____________________re", bot_reply_only)
 
     # Extract text between asterisks (*)
     emotions_raw = re.search(r'\*(.*?)\*', bot_reply)
     if emotions_raw:
         emotions = emotions_raw.group(1).split(" ")
-        with open(os.path.join(project_path + "voicevox_api",'emotions.json'), 'r', encoding='utf-8') as f:
+        with open(project_path + "voicevox_api/emotions.json", 'r', encoding='utf-8') as f:
             emotions_data = json.load(f)
             happy_emotions = [word for word in emotions if word in emotions_data['happy_words']]
             sad_emotions = [word for word in emotions if word in emotions_data['sad_words']]
@@ -90,4 +91,4 @@ def chats():
     get_reply = Synthesize(messageText)
     # TODO audio as blob and send it with text in the same object
     return {"bot_res": get_reply}
-    # return send_file(os.path.join('api/output.wav'), mimetype='audio/wav', as_attachment=False)
+    # return send_file(os.path.join('voicevox_api/output.wav'), mimetype='audio/wav', as_attachment=False)
