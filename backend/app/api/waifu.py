@@ -1,11 +1,9 @@
-from flask import (Blueprint, request, send_file)
-import os
+from flask import (Blueprint, request)
 import json
 from app.engine.chat import userInput
 from app.voicevox_api.voicevox_engine_api import textInput
-import pyaudio
-import wave
 import re
+import base64
 bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
 from dotenv import dotenv_values
 
@@ -40,6 +38,7 @@ def Synthesize(message):
             happy_emotions = [word for word in emotions if word in emotions_data['happy_words']]
             sad_emotions = [word for word in emotions if word in emotions_data['sad_words']]
             anger_emotions = [word for word in emotions if word in emotions_data['anger_words']]
+            closeup_emotions = [word for word in emotions if word in emotions_data['whisper_words']]
             
             if happy_emotions:
                 print("___HAPPY___", happy_emotions)
@@ -50,38 +49,53 @@ def Synthesize(message):
             elif anger_emotions:
                 print("___ANGER___", anger_emotions)
                 speaker_emotion = "6"
+            elif closeup_emotions:
+                print("___WHISPER___", closeup_emotions)
+                speaker_emotion = "36"
             else:
                 speaker_emotion = "2"
-            textInput(speaker_emotion, bot_reply_only)
+            audio_data = textInput(speaker_emotion, bot_reply_only)
+            # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
+            #     f.write(audio_data)
+            # print("____________________________________", audio_data)
     else:
-        textInput("2", bot_reply_only)
-        playAudio()
+        audio_data = textInput("2", bot_reply_only)
+        # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
+        #     f.write(audio_data)
+        # print("____________________________________", audio_data)
+        # playAudio()
 
     print("split name before", bot_reply)
     bot_reply.replace("\n", "<br>")
-    return bot_reply
 
-def playAudio():
-    chunk = 1024
-    wf = wave.open('app/voicevox_api/audio.wav', 'rb')
+    # assuming the audio bytes are stored in a bytes object called 'audioBytes'
+    audioBase64 = base64.b64encode(audio_data).decode('utf-8')
 
-    p = pyaudio.PyAudio()
+    bot_replies = json.dumps({'bot_reply': bot_reply, 'audio': audioBase64})
+    # print(bot_replies)
+    return bot_replies
 
-    stream = p.open(
-        format=p.get_format_from_width(wf.getsampwidth()),
-        channels=wf.getnchannels(),
-        rate=wf.getframerate(),
-        output=True
-    )
+# def playAudio():
+#     chunk = 1024
+#     wf = wave.open('app/voicevox_api/audio.wav', 'rb')
 
-    data = wf.readframes(chunk)
+#     p = pyaudio.PyAudio()
 
-    while data:
-        stream.write(data)
-        data = wf.readframes(chunk)
+#     stream = p.open(
+#         format=p.get_format_from_width(wf.getsampwidth()),
+#         channels=wf.getnchannels(),
+#         rate=wf.getframerate(),
+#         output=True
+#     )
 
-    stream.close()
-    p.terminate()
+#     data = wf.readframes(chunk)
+
+#     while data:
+#         stream.write(data)
+#         data = wf.readframes(chunk)
+
+#     stream.close()
+#     p.terminate()
 
 
 @bp.post('/chats')
@@ -89,6 +103,5 @@ def chats():
     params = request.get_json()
     messageText = params.get('messageText')
     get_reply = Synthesize(messageText)
-    # TODO audio as blob and send it with text in the same object
-    return {"bot_res": get_reply}
+    return get_reply
     # return send_file(os.path.join('voicevox_api/output.wav'), mimetype='audio/wav', as_attachment=False)
