@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { ApiService } from "../lib/services/apiService";
   export const apiService = new ApiService();
 
@@ -10,6 +11,19 @@
   let chat_bubble1: any
   let buttonLoad: any
   let buttonStartSpeech: any
+  let embed: any
+
+  onMount(() => {
+    embed = document.createElement("embed");
+    embed.setAttribute("loop", "true");
+    embed.setAttribute("autostart", "true");
+    embed.setAttribute("height", "2");
+    embed.setAttribute("width", "0");
+    embed.style.position = "absolute";
+
+    texts = window.document.getElementById("texts") as HTMLDivElement;
+  })
+
   function loadSpeechRecog() {
 
     if (!('webkitSpeechRecognition' in window)) {
@@ -40,7 +54,6 @@
   }
 
   function createChatElement(text: any) {
-    texts = window.document.getElementById("texts") as HTMLDivElement;
     chat = document.createElement("div") as HTMLDivElement;
     chat.classList.add("chat")
     chat.classList.add("chat-end")
@@ -51,11 +64,14 @@
     chat_bubble.innerText = text;
     chat.appendChild(chat_bubble)
     synthesize(text);
+    texts.scrollTop = texts.scrollHeight;
   }
 
   let input_message: any = ""
   async function synthesize(message: any) {
+
     let response = await apiService.postMesage(message)
+
     chat1 = document.createElement("div") as HTMLDivElement;
     chat_bubble1 = document.createElement("div") as HTMLDivElement;
     chat1.classList.add("chat")
@@ -63,10 +79,22 @@
     chat_bubble1.classList.add("chat-bubble")
     chat_bubble1.classList.add("chat-bubble-secondary")
     chat1.appendChild(chat_bubble1)
-    // p = document.createElement("p");
-    // p.classList.add("replay");
-    chat_bubble1.innerText = response.bot_res;
+    chat_bubble1.innerText = response.bot_reply;
+    loadAudio(response.audio)
     texts.appendChild(chat1);
+    texts.scrollTop = texts.scrollHeight;
+  }
+
+  function loadAudio(response_audio: any) {
+    let audioBytes = atob(response_audio);
+    let audioArray = new Uint8Array(audioBytes.length);
+    for (let i = 0; i < audioBytes.length; i++) {
+      audioArray[i] = audioBytes.charCodeAt(i);
+    }
+    let audioBlob = new Blob([audioArray], { type: 'audio/wav' });
+    let audioUrl = URL.createObjectURL(audioBlob);
+    embed.setAttribute("src", audioUrl);
+    document.body.appendChild(embed);
   }
 
   function startRecognition() {
@@ -76,22 +104,26 @@
   }
 
   function newLineText(e: any) {
-    let lastScrollHeight = 0;
+    // console.log(e)
     const chatInput = document.getElementById(
       "chat-input"
     ) as HTMLTextAreaElement;
-    if (e.key === "Enter" && e.shiftKey) {
+    if (e.key === "Enter" && e.shiftKey || e.key === "Enter") {
       e.preventDefault();
       chatInput.value += "\n";
-      chatInput.style.height = `${chatInput.scrollHeight}px`;
-      lastScrollHeight = chatInput.scrollHeight;
-    } else if (e.key === "Backspace") {
-      chatInput.style.height =
-        Math.max(chatInput.scrollHeight / 1.2, lastScrollHeight) + "px";
-    } else if (e.key === "Enter") {
+      chatInput.rows += 1;
+    }
+    if (e.key === "Backspace") {
+      if (chatInput.rows === 1) {
+        chatInput.rows = 1
+        return
+      }
+      chatInput.rows -= 1;
+    }
+    if (e.key === "Enter" && e.ctrlKey) {
       createChatElement(input_message)
       chatInput.value = ""
-      chatInput.style.height = "0px"
+      chatInput.rows = 1
     }
   }
 </script>
@@ -102,7 +134,7 @@
 </section>
 <div class="md:container md:mx-auto h-screen w-screen">
   <div class="mockup-window border bg-base-300 h-custom my-4">
-    <div id="texts" class="p-16 flex flex-col-reverse h-full overflow-y-auto">
+    <div id="texts" class="py-16 px-4 h-full overflow-y-auto">
       <!-- <div class="chat chat-end">
         <div class="chat-image avatar">
           <div class="w-10 rounded-full">
@@ -135,12 +167,14 @@
     <button bind:this={buttonStartSpeech} class="btn" on:click={() => startRecognition()}>Start conversation</button>
   </div>
   <div class="mockup-code h-auto my-4 w-full p-4">
+    <pre><code>hold 'CTRL' and 'ENTER' to submit</code></pre>
     <textarea
       id="chat-input"
       on:keydown={(e) => newLineText(e)}
-      placeholder="Type here and press enter to submit"
+      placeholder="Type here and hold CTRL and ENTER to submit"
       class="textarea textarea-secondary w-full resize-y"
       bind:value={input_message}
+      rows=1
     />
   </div>
 </div>
