@@ -52,9 +52,8 @@ def userInput(user_input: str):
     logger.debug("Parsed model response is: `%s`", generated_messages)
     bot_message = generated_messages[0]
     bot_message.replace('<USER>', file_data['user_name'])
-    # temporarry unbind the history
-    # file_data['history'].append(f"You: {user_input}")
-    # file_data['history'].append(bot_message)
+    file_data['history'].append(f"You: {user_input}")
+    file_data['history'].append(bot_message)
 
     # Write the data to a JSON file
     with open(os.path.join(current_path, "character.json"), "w") as outfile:

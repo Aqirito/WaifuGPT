@@ -53,13 +53,13 @@ def Synthesize(message):
                 print("___WHISPER___", closeup_emotions)
                 speaker_emotion = "36"
             else:
-                speaker_emotion = "2"
+                speaker_emotion = "0"
             audio_data = textInput(speaker_emotion, bot_reply_only)
             # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
             #     f.write(audio_data)
             # print("____________________________________", audio_data)
     else:
-        audio_data = textInput("2", bot_reply_only)
+        audio_data = textInput("0", bot_reply_only)
         # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
         #     f.write(audio_data)
         # print("____________________________________", audio_data)
@@ -67,6 +67,14 @@ def Synthesize(message):
 
     print("split name before", bot_reply)
     bot_reply.replace("\n", "<br>")
+    # TODO send the emotions to the cleint seperately
+    reply_splitted_emotions = {
+        "reply": bot_reply_only,
+        "emotions": emotions_raw.group(1).split(" ") if emotions_raw else None
+    }
+
+    print("________EMOTIONS REPLY__________")
+    print(reply_splitted_emotions)
 
     # assuming the audio bytes are stored in a bytes object called 'audioBytes'
     audioBase64 = base64.b64encode(audio_data).decode('utf-8')
