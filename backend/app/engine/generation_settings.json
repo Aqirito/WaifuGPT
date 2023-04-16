@@ -1,7 +1,7 @@
 {
   "do_sample": true,
   "max_new_tokens": 196,
-  "temperature": 0.5,
+  "temperature": 0.8,
   "top_p": 0.9,
   "top_k": 0,
   "typical_p": 1.0,
