@@ -1,10 +1,10 @@
 {
   "do_sample": true,
   "max_new_tokens": 196,
-  "temperature": 0.8,
-  "top_p": 0.9,
+  "temperature": 0.5,
+  "top_p": 0.4,
   "top_k": 0,
-  "typical_p": 1.0,
+  "typical_p": 0.2,
   "repetition_penalty": 1.05,
   "penalty_alpha": 0.6
 }
