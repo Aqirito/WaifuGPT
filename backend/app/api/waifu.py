@@ -6,6 +6,8 @@ import re
 import base64
 bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
 from dotenv import dotenv_values
+from googletrans import Translator
+translator = Translator()
 
 config = dotenv_values(".env")
 project_path = config["FLASK_PROJECT_PATH"]
@@ -110,6 +112,8 @@ def Synthesize(message):
 def chats():
     params = request.get_json()
     messageText = params.get('messageText')
-    get_reply = Synthesize(messageText)
+    translated_data = translator.translate(messageText, dest='en')
+    translated_text = translated_data.text
+    get_reply = Synthesize(translated_text)
     return get_reply
     # return send_file(os.path.join('voicevox_api/output.wav'), mimetype='audio/wav', as_attachment=False)
