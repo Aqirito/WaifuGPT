@@ -13,9 +13,10 @@
   let buttonStartSpeech: any
   let embed: any
   let isStart = false;
+  let isLanguage: boolean = true;
 
   onMount(() => {
-    embed = document.createElement("embed");
+    embed = document.createElement("embed") as HTMLEmbedElement;
     embed.setAttribute("loop", "true");
     embed.setAttribute("autostart", "true");
     embed.setAttribute("height", "2");
@@ -25,7 +26,6 @@
     texts = window.document.getElementById("texts") as HTMLDivElement;
     loadSpeechRecog()
   })
-
   function loadSpeechRecog() {
 
     if (!('webkitSpeechRecognition' in window)) {
@@ -34,7 +34,6 @@
     }
     webkitrecognition = new (window as any).webkitSpeechRecognition();
     webkitrecognition.interimResults = true;
-    webkitrecognition.lang = "ms-my"
     webkitrecognition.addEventListener("result", (e: any) => {
       let text = Array.from(e.results)
         .map((result: any) => result[0])
@@ -54,6 +53,15 @@
     webkitrecognition.addEventListener("end", () => {
       if (isStart) {
         webkitrecognition.start();
+      }
+    })
+    webkitrecognition.addEventListener("start", () => {
+      if (isLanguage) {
+        console.log("is language", isLanguage)
+        webkitrecognition.lang = "en-us"
+      } else {
+        console.log("is language", isLanguage)
+        webkitrecognition.lang = "ms-my"
       }
     })
   }
@@ -100,6 +108,7 @@
     let audioUrl = URL.createObjectURL(audioBlob);
     embed.setAttribute("src", audioUrl);
     document.body.appendChild(embed);
+    // TODO pause recording when the audio is currently playing
   }
 
   function startStopRecognition() {
@@ -141,12 +150,18 @@
     }
   }
 </script>
-
 <section>
   <h1>WaifuGPT</h1>
   <p>beta version</p>
 </section>
 <div class="md:container md:mx-auto h-screen w-screen">
+  <div class="flex">
+    <label class="cursor-pointer label">
+      <span class="label-text mr-2">MY</span> 
+      <input bind:checked={isLanguage} type="checkbox" class="toggle" />
+      <span class="label-text ml-2">EN</span> 
+    </label>
+  </div>
   <div class="mockup-window border bg-base-300 h-custom my-4">
     <div id="texts" class="py-16 px-4 h-full overflow-y-auto">
       <!-- <div class="chat chat-end">
