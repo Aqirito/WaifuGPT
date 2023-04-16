@@ -12,6 +12,7 @@
   let buttonLoad: any
   let buttonStartSpeech: any
   let embed: any
+  let isStart = false;
 
   onMount(() => {
     embed = document.createElement("embed");
@@ -22,6 +23,7 @@
     embed.style.position = "absolute";
 
     texts = window.document.getElementById("texts") as HTMLDivElement;
+    loadSpeechRecog()
   })
 
   function loadSpeechRecog() {
@@ -32,25 +34,28 @@
     }
     webkitrecognition = new (window as any).webkitSpeechRecognition();
     webkitrecognition.interimResults = true;
+    webkitrecognition.lang = "ms-my"
     webkitrecognition.addEventListener("result", (e: any) => {
-      const text = Array.from(e.results)
+      let text = Array.from(e.results)
         .map((result: any) => result[0])
         .map((result: any) => result.transcript)
         .join("");
 
       if (e.results[0].isFinal) {
-        createChatElement(text)
-        // console.log("sd", text);
-        // if (text.toLowerCase().includes("hey, milo") || text.toLowerCase().includes("hello milo")) {
-        // }
-        // p = document.createElement("p");
+        console.log("input speech: ", text);
+
+        if (text.toLowerCase().includes("izumi")) {
+          createChatElement(text)
+        }
       }
     });
-      
-    webkitrecognition.addEventListener("end", () => {
-      webkitrecognition.start();
-    });
     buttonLoad.classList.add("btn-active")
+    
+    webkitrecognition.addEventListener("end", () => {
+      if (isStart) {
+        webkitrecognition.start();
+      }
+    })
   }
 
   function createChatElement(text: any) {
@@ -97,10 +102,19 @@
     document.body.appendChild(embed);
   }
 
-  function startRecognition() {
-    webkitrecognition.start();
-    buttonStartSpeech.classList.add("btn-success")
-    // buttonStartSpeech.classList.add("btn-active")
+  function startStopRecognition() {
+    if (webkitrecognition) {
+      isStart = !isStart;
+      if (!isStart) {
+        webkitrecognition.stop();
+        console.log("stopped")
+        buttonStartSpeech.classList.remove("btn-success")
+      } else if (isStart) {
+        console.log("start")
+        webkitrecognition.start();
+        buttonStartSpeech.classList.add("btn-success")
+      }
+    }
   }
 
   function newLineText(e: any) {
@@ -164,7 +178,7 @@
   </div>
   <div class="btn-group float-right">
     <button bind:this={buttonLoad} class="btn" on:click={() => loadSpeechRecog()}>Load Speech recognition</button>
-    <button bind:this={buttonStartSpeech} class="btn" on:click={() => startRecognition()}>Start conversation</button>
+    <button bind:this={buttonStartSpeech} class="btn" on:click={() => startStopRecognition()}>Start conversation</button>
   </div>
   <div class="mockup-code h-auto my-4 w-full p-4">
     <pre><code>hold 'CTRL' and 'ENTER' to submit</code></pre>
