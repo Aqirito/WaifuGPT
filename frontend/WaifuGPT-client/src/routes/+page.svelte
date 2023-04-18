@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { ApiService } from "../lib/services/apiService";
+  import { browser } from "$app/environment";
   export const apiService = new ApiService();
 
   let webkitrecognition: any;
@@ -14,6 +15,9 @@
   let embed: any
   let isStart = false;
   let isLanguage: boolean = true;
+  let chat_history: any = {
+    "history": []
+  };
 
   onMount(() => {
     embed = document.createElement("embed") as HTMLEmbedElement;
@@ -48,7 +52,7 @@
         }
       }
     });
-    buttonLoad.classList.add("btn-active")
+    buttonLoad.classList.add("btn-success")
     
     webkitrecognition.addEventListener("end", () => {
       if (isStart) {
@@ -77,6 +81,7 @@
     chat_bubble.innerText = text;
     chat.appendChild(chat_bubble)
     synthesize(text);
+    chat_history.history.push(`You: ${text}`)
     texts.scrollTop = texts.scrollHeight;
   }
 
@@ -84,15 +89,24 @@
   async function synthesize(message: any) {
 
     let response = await apiService.postMesage(message)
+    let bot_reply = response.bot_reply
+    let bot_reply_only = bot_reply.split(": ")[1]
+    chat_history.history.push(bot_reply)
 
     chat1 = document.createElement("div") as HTMLDivElement;
-    chat_bubble1 = document.createElement("div") as HTMLDivElement;
     chat1.classList.add("chat")
     chat1.classList.add("chat-start")
-    chat_bubble1.classList.add("chat-bubble")
-    chat_bubble1.classList.add("chat-bubble-secondary")
-    chat1.appendChild(chat_bubble1)
-    chat_bubble1.innerText = response.bot_reply;
+    chat1.innerHTML = `
+                      <div class="chat-image avatar">
+                        <div class="w-10 rounded-full">
+                          <img src="Sagiri.png" />
+                        </div>
+                      </div>
+                      <div class="chat-bubble chat-bubble-secondary">${bot_reply_only}</div>
+                      <div class="chat-footer opacity-50">
+                          ${response.emotions || ""}
+                      </div>
+                      `
     loadAudio(response.audio)
     texts.appendChild(chat1);
     texts.scrollTop = texts.scrollHeight;
@@ -117,11 +131,11 @@
       if (!isStart) {
         webkitrecognition.stop();
         console.log("stopped")
-        buttonStartSpeech.classList.remove("btn-success")
+        buttonStartSpeech.classList.remove("btn-error")
       } else if (isStart) {
         console.log("start")
         webkitrecognition.start();
-        buttonStartSpeech.classList.add("btn-success")
+        buttonStartSpeech.classList.add("btn-error")
       }
     }
   }
@@ -148,6 +162,17 @@
       chatInput.value = ""
       chatInput.rows = 1
     }
+  }
+
+  async function saveChatHistory() {
+    const jsonData: string = JSON.stringify(chat_history);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = 'chat_history.json';
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
   }
 </script>
 <section>
@@ -187,13 +212,21 @@
     </div>
   </div>
   <div class="btn-group">
-    <button class="btn btn-active">Casual</button>
+    <button class="btn btn-active">WAIFU</button>
     <button class="btn">Expert</button>
-    <button class="btn">Code Assistant</button>
+    <button class="btn" on:click={() => saveChatHistory()}>Save Chat History</button>
   </div>
   <div class="btn-group float-right">
     <button bind:this={buttonLoad} class="btn" on:click={() => loadSpeechRecog()}>Load Speech recognition</button>
-    <button bind:this={buttonStartSpeech} class="btn" on:click={() => startStopRecognition()}>Start conversation</button>
+    <label bind:this={buttonStartSpeech} class="btn swap">
+      <input on:click={() => startStopRecognition()} type="checkbox" />
+      <svg class="w-6 h-6 swap-off" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+      </svg>      
+      <svg class="w-6 h-6 swap-on heartbeat-icon" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" stroke-width="1.5" stroke="yellow">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+      </svg>  
+    </label>
   </div>
   <div class="mockup-code h-auto my-4 w-full p-4">
     <pre><code>hold 'CTRL' and 'ENTER' to submit</code></pre>
