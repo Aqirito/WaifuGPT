@@ -6,7 +6,6 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 url = config["FLASK_VX_API_URL"]
-project_path = config["FLASK_PROJECT_PATH"]
 translator = Translator()
 
 """

@@ -4,13 +4,10 @@ from app.engine.chat import userInput
 from app.voicevox_api.voicevox_engine_api import textInput
 import re
 import base64
+import os
 bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
-from dotenv import dotenv_values
 from googletrans import Translator
 translator = Translator()
-
-config = dotenv_values(".env")
-project_path = config["FLASK_PROJECT_PATH"]
 
 """
 "char_name"       : "Shikoku Metan"
@@ -24,18 +21,24 @@ project_path = config["FLASK_PROJECT_PATH"]
 
 def Synthesize(message):
     bot_response = userInput(message)
-    bot_reply = bot_response.split(': ')[1]
+    bot_reply_split_name = bot_response.split(': ')[1]
 
     # Remove text between asterisks
-    bot_reply_only = re.sub(r'\*.*?\*', '', bot_reply)
-    if not bot_reply_only:
-        bot_reply_only = bot_reply
+    bot_reply_no_name = re.sub(r'\*.*?\*', '', bot_reply_split_name)
+    if not bot_reply_no_name:
+        bot_reply_no_name = bot_reply_split_name
+
+    # Remove text between asterisks
+    bot_reply_with_name = re.sub(r'\*.*?\*', '', bot_response)
+    if not bot_reply_with_name:
+        bot_reply_with_name = bot_response
 
     # Extract text between asterisks (*)
-    emotions_raw = re.search(r'\*(.*?)\*', bot_reply)
+    emotions_raw = re.search(r'\*(.*?)\*', bot_response)
+
     if emotions_raw:
         emotions = emotions_raw.group(1).split(" ")
-        with open(project_path + "voicevox_api/emotions.json", 'r', encoding='utf-8') as f:
+        with open(os.path.abspath(os.path.join("app/voicevox_api", "emotions.json")), 'r', encoding='utf-8') as f:
             emotions_data = json.load(f)
             happy_emotions = [word for word in emotions if word in emotions_data['happy_words']]
             sad_emotions = [word for word in emotions if word in emotions_data['sad_words']]
@@ -56,32 +59,29 @@ def Synthesize(message):
                 speaker_emotion = "36"
             else:
                 speaker_emotion = "0"
-            audio_data = textInput(speaker_emotion, bot_reply_only)
+            audio_data = textInput(speaker_emotion, bot_reply_no_name)
             # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
             #     f.write(audio_data)
             # print("____________________________________", audio_data)
     else:
-        audio_data = textInput("0", bot_reply_only)
+        audio_data = textInput("0", bot_reply_no_name)
         # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
         #     f.write(audio_data)
         # print("____________________________________", audio_data)
         # playAudio()
 
-    print("split name before", bot_reply)
-    bot_reply.replace("\n", "<br>")
-    # TODO send the emotions to the cleint seperately
-    reply_splitted_emotions = {
-        "reply": bot_reply_only,
-        "emotions": emotions_raw.group(1).split(" ") if emotions_raw else None
-    }
-
-    print("________EMOTIONS REPLY__________")
-    print(reply_splitted_emotions)
+    print("split name before", bot_reply_with_name)
+    bot_reply_with_name.replace("\n", "<br>")
 
     # assuming the audio bytes are stored in a bytes object called 'audioBytes'
     audioBase64 = base64.b64encode(audio_data).decode('utf-8')
+    reply_splitted_emotions = {
+        "bot_reply": bot_reply_with_name,
+        "emotions": emotions_raw.group(1) if emotions_raw else None,
+        'audio': audioBase64
+    }
 
-    bot_replies = json.dumps({'bot_reply': bot_reply, 'audio': audioBase64})
+    bot_replies = json.dumps(reply_splitted_emotions)
     # print(bot_replies)
     return bot_replies
 
