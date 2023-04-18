@@ -122,6 +122,16 @@
     "speak in muted tones",
     "speak in confidential tones",
     "speak in a murmur",
-    "speak in subdued tones"
+    "speak in subdued tones",
+    "hushed",
+    "quietly",
+    "sotto voce",
+    "low voice",
+    "whispers",
+    "muted",
+    "confidential",
+    "murmur",
+    "subdued",
+    "softly"
   ]
 }
