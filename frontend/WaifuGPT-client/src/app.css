@@ -18,3 +18,22 @@ section p {
   color: rgba(255, 255, 255, 0.322);
   width: 100%;
 }
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat-icon {
+  animation-name: heartbeat;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
