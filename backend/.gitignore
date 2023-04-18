@@ -5,6 +5,7 @@ __pycache__/
 .env
 character.json
 instance/
+app/models/*
 
 .pytest_cache/
 .coverage
