@@ -51,7 +51,7 @@ def userInput(user_input: str):
                                                   ["You", file_data['char_name']])
     logger.debug("Parsed model response is: `%s`", generated_messages)
     bot_message = generated_messages[0]
-    bot_message.replace('<USER>', file_data['user_name'])
+    replace_name = bot_message.replace('<USER>', file_data['user_name'])
 
     # # temporarry comment out
     # file_data['history'].append(f"You: {user_input}")
@@ -61,5 +61,5 @@ def userInput(user_input: str):
     # # Write the data to a JSON file
     # with open(os.path.join(current_path, "character.json"), "w") as outfile:
     #     json.dump(file_data, outfile)
-    print(bot_message)
-    return bot_message
+    print("from chat_____________________", replace_name)
+    return replace_name
