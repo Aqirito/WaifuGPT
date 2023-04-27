@@ -19,14 +19,25 @@ translator = Translator()
 "Whisper"         : 37
 """
 
+"""
+"char_name"       : "Kyūshū sora"
+"Normal"          : 16
+"sweet"           : 15
+"tsuntsun"        : 18
+"Sexy"            : 17
+"Whisper closely" : 19
+"""
+
 def Synthesize(message):
     bot_response = userInput(message)
     bot_reply_split_name = bot_response.split(': ')[1]
 
     # Remove text between asterisks
     bot_reply_no_name = re.sub(r'\*.*?\*', '', bot_reply_split_name)
-    if not bot_reply_no_name:
-        bot_reply_no_name = bot_reply_split_name
+    print("_______________bot_reply_no_name______________", bot_reply_no_name)
+    
+    bot_reply_remove_newline = bot_reply_no_name.replace("\n", "")
+    print("____________bot_reply_remove_newline__________", bot_reply_remove_newline)
 
     # Remove text between asterisks
     bot_reply_with_name = re.sub(r'\*.*?\*', '', bot_response)
@@ -34,10 +45,14 @@ def Synthesize(message):
         bot_reply_with_name = bot_response
 
     # Extract text between asterisks (*)
-    emotions_raw = re.search(r'\*(.*?)\*', bot_response)
-
-    if emotions_raw:
-        emotions = emotions_raw.group(1).split(" ")
+    emotions_raw = re.findall(r'\*(.*?)\*', bot_response)
+    emotions_string = ' '.join(emotions_raw)
+    print("_______________emotions_raw___________")
+    print(emotions_raw)
+    if emotions_string:
+        emotions = emotions_string.split(" ")
+        print("________emotions______")
+        print(emotions)
         with open(os.path.abspath(os.path.join("app/voicevox_api", "emotions.json")), 'r', encoding='utf-8') as f:
             emotions_data = json.load(f)
             happy_emotions = [word for word in emotions if word in emotions_data['happy_words']]
@@ -45,39 +60,38 @@ def Synthesize(message):
             anger_emotions = [word for word in emotions if word in emotions_data['anger_words']]
             closeup_emotions = [word for word in emotions if word in emotions_data['whisper_words']]
             
-            if happy_emotions:
-                print("___HAPPY___", happy_emotions)
-                speaker_emotion = "0"
+            if closeup_emotions:
+                print("___WHISPER___", closeup_emotions)
+                speaker_emotion = "19"
             elif sad_emotions:
                 print("___SAD___", sad_emotions)
-                speaker_emotion = "37"
+                speaker_emotion = "16"
             elif anger_emotions:
                 print("___ANGER___", anger_emotions)
-                speaker_emotion = "6"
-            elif closeup_emotions:
-                print("___WHISPER___", closeup_emotions)
-                speaker_emotion = "36"
+                speaker_emotion = "18"
+            elif happy_emotions:
+                print("___HAPPY___", happy_emotions)
+                speaker_emotion = "15"
             else:
-                speaker_emotion = "0"
-            audio_data = textInput(speaker_emotion, bot_reply_no_name)
+                speaker_emotion = "16"
+            audio_data = textInput(speaker_emotion, bot_reply_remove_newline)
             # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
             #     f.write(audio_data)
             # print("____________________________________", audio_data)
     else:
-        audio_data = textInput("0", bot_reply_no_name)
+        audio_data = textInput("16", bot_reply_remove_newline)
         # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
         #     f.write(audio_data)
         # print("____________________________________", audio_data)
         # playAudio()
 
-    print("split name before", bot_reply_with_name)
-    bot_reply_with_name.replace("\n", "<br>")
+    replace_newline = bot_response.replace("\n", "<br>")
 
     # assuming the audio bytes are stored in a bytes object called 'audioBytes'
-    audioBase64 = base64.b64encode(audio_data).decode('utf-8')
+    audioBase64 = base64.b64encode(audio_data).decode('utf-8') if audio_data else None
     reply_splitted_emotions = {
-        "bot_reply": bot_reply_with_name,
-        "emotions": emotions_raw.group(1) if emotions_raw else None,
+        "bot_reply": replace_newline,
+        "emotions": emotions_raw if emotions_raw else None,
         'audio': audioBase64
     }
 
