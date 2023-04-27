@@ -23,12 +23,10 @@ def textInput(speaker: str, text: str):
     assert isinstance(speaker, str), 'speaker must be a string'
     assert isinstance(text, str), 'text must be a string'
 
-    print("_______________________________")
+    print("______________textInput_________________")
     print(text)
-
-    translated_data = translator.translate(text, dest='ja')
-    translated_text = translated_data.text
-
+    translated_data = translator.translate(text, dest='ja') if text else None
+    translated_text = translated_data.text if translated_data else "..."
     params = {'speaker': speaker, 'text': translated_text}
 
     audio_query_response = requests.post(url + 'audio_query', params=params)
