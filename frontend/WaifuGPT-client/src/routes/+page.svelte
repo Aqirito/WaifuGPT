@@ -91,6 +91,8 @@
     let response = await apiService.postMesage(message)
     let bot_reply = response.bot_reply
     let bot_reply_only = bot_reply.split(": ")[1]
+    bot_reply_only = '<p style="font-weight: 400;">' + bot_reply_only + '</p>';
+    bot_reply_only = bot_reply_only.replace(/\*([^*]+)\*/g, '<i style="opacity: 0.7; font-size: 14px;">$1</i>');
     chat_history.history.push(bot_reply)
 
     chat1 = document.createElement("div") as HTMLDivElement;
@@ -103,9 +105,6 @@
                         </div>
                       </div>
                       <div class="chat-bubble chat-bubble-secondary">${bot_reply_only}</div>
-                      <div class="chat-footer opacity-50">
-                          ${response.emotions || ""}
-                      </div>
                       `
     loadAudio(response.audio)
     texts.appendChild(chat1);
