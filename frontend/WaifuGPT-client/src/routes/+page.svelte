@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { ApiService } from "../lib/services/apiService";
-  import { browser } from "$app/environment";
   export const apiService = new ApiService();
 
   let webkitrecognition: any;
@@ -47,7 +46,7 @@
       if (e.results[0].isFinal) {
         console.log("input speech: ", text);
 
-        if (text.toLowerCase().includes("izumi")) {
+        if (text.toLowerCase().includes("marsha")) {
           createChatElement(text)
         }
       }
@@ -88,7 +87,7 @@
   let input_message: any = ""
   async function synthesize(message: any) {
 
-    let response = await apiService.postMesage(message)
+    let response = await apiService.postChats(message)
     let bot_reply = response.bot_reply
     let bot_reply_only = bot_reply.split(": ")[1]
     bot_reply_only = '<p style="font-weight: 400;">' + bot_reply_only + '</p>';
@@ -212,7 +211,7 @@
   </div>
   <div class="btn-group">
     <button class="btn btn-active">WAIFU</button>
-    <button class="btn">Expert</button>
+    <a class="btn" href="expert_mode" target="_self">Expert</a>
     <button class="btn" on:click={() => saveChatHistory()}>Save Chat History</button>
   </div>
   <div class="btn-group float-right">
