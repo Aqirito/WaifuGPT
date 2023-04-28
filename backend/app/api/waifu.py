@@ -5,9 +5,22 @@ from app.voicevox_api.voicevox_engine_api import textInput
 import re
 import base64
 import os
-bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
+
+from dotenv import dotenv_values
+config = dotenv_values(".env")
+GGML_NAME = config["FLASK_GGML_NAME"]
+
 from googletrans import Translator
 translator = Translator()
+
+bp = Blueprint('waifu', __name__, url_prefix='/api/waifu')
+
+# load GGML Model
+from llama_cpp import Llama
+print("loading model...")
+model_path = os.path.abspath(os.path.join("app/models", GGML_NAME))
+llm = Llama(model_path=model_path, n_ctx=2048)
+print("model loaded success")
 
 """
 "char_name"       : "Shikoku Metan"
@@ -62,24 +75,24 @@ def Synthesize(message):
             
             if closeup_emotions:
                 print("___WHISPER___", closeup_emotions)
-                speaker_emotion = "19"
+                speaker_emotion = "36"
             elif sad_emotions:
                 print("___SAD___", sad_emotions)
-                speaker_emotion = "16"
+                speaker_emotion = "37"
             elif anger_emotions:
                 print("___ANGER___", anger_emotions)
-                speaker_emotion = "18"
+                speaker_emotion = "6"
             elif happy_emotions:
                 print("___HAPPY___", happy_emotions)
-                speaker_emotion = "15"
+                speaker_emotion = "0"
             else:
-                speaker_emotion = "16"
+                speaker_emotion = "2"
             audio_data = textInput(speaker_emotion, bot_reply_remove_newline)
             # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
             #     f.write(audio_data)
             # print("____________________________________", audio_data)
     else:
-        audio_data = textInput("16", bot_reply_remove_newline)
+        audio_data = textInput("2", bot_reply_remove_newline)
         # with open(project_path + '\\voicevox_api\\audio.wav', 'wb') as f:
         #     f.write(audio_data)
         # print("____________________________________", audio_data)
@@ -99,28 +112,6 @@ def Synthesize(message):
     # print(bot_replies)
     return bot_replies
 
-# def playAudio():
-#     chunk = 1024
-#     wf = wave.open('app/voicevox_api/audio.wav', 'rb')
-
-#     p = pyaudio.PyAudio()
-
-#     stream = p.open(
-#         format=p.get_format_from_width(wf.getsampwidth()),
-#         channels=wf.getnchannels(),
-#         rate=wf.getframerate(),
-#         output=True
-#     )
-
-#     data = wf.readframes(chunk)
-
-#     while data:
-#         stream.write(data)
-#         data = wf.readframes(chunk)
-
-#     stream.close()
-#     p.terminate()
-
 
 @bp.post('/chats')
 def chats():
@@ -131,3 +122,35 @@ def chats():
     get_reply = Synthesize(translated_text)
     return get_reply
     # return send_file(os.path.join('voicevox_api/output.wav'), mimetype='audio/wav', as_attachment=False)
+
+@bp.post('/questions')
+def questions():
+    params = request.get_json()
+    messageText = params.get('messageText')
+    output = llm(
+        "Q:{} A: ".format(messageText),
+        max_tokens=1024,
+        stop=["Q:", "\n"],
+        echo=True,
+        temperature=0.7,
+        repeat_penalty=1.1,
+    )
+    generated_text = output["choices"][0]["text"]
+    questions = generated_text.split(" A: ")[0][2:].lstrip()
+    answers = generated_text.split(" A: ")[1][1:].lstrip()
+
+    audio_data = textInput("2", answers)
+
+    audioBase64 = base64.b64encode(audio_data).decode('utf-8') if audio_data else None
+
+    with open(os.path.abspath(os.path.join("app/engine", "character.json")), "r") as f:
+        f.seek(0)  # Move to the beginning of the file
+        file_data = json.loads(f.read())
+
+    output_json = {
+        "questions": file_data['user_name'] + ": " + questions,
+        "bot_reply": file_data['char_name'] + ": " + answers,
+        "audio": audioBase64,
+        "emotions": None,
+    }
+    return json.dumps(output_json)
