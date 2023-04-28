@@ -12,7 +12,7 @@ config = dotenv_values(".env")
 CKPT_NAME = config["FLASK_CKPT_NAME"]
 FILE_PATH = os.path.abspath(os.path.join("app/models", CKPT_NAME))
 
-current_path = dir_path = os.path.dirname(os.path.realpath(__file__))
+current_path = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(current_path, "character.json"), "r") as f:
     f.seek(0)  # Move to the beginning of the file
     file_data = json.loads(f.read())
