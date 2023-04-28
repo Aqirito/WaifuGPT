@@ -7,11 +7,26 @@ export class ApiService {
 
   constructor() {}
 
-  async postMesage(message:string) {
+  async postChats(message:string) {
     const payload = {
       messageText: message
     }
     const result = await fetch(`${this.BaseApiUrl}/api/waifu/chats`, {
+      method: 'POST',
+      headers: new Headers(this.headerOptions),
+      body: JSON.stringify(payload)
+    });
+    if (!result.ok) {
+      return new Response(JSON.stringify(result));
+    }
+    return result.json()
+  }
+
+  async postQuestions(message:string) {
+    const payload = {
+      messageText: message
+    }
+    const result = await fetch(`${this.BaseApiUrl}/api/waifu/questions`, {
       method: 'POST',
       headers: new Headers(this.headerOptions),
       body: JSON.stringify(payload)
