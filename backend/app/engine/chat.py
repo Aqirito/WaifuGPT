@@ -31,6 +31,13 @@ if len(file_data["history"]) == 0 and file_data["char_greeting"] is not None:
     print(f"{file_data['char_name']}: {file_data['char_greeting']}")
 
 def userInput(user_input: str):
+    # If we're just starting the conversation and the character has a greeting
+    # configured, return that instead. This is a workaround for the fact that
+    # Gradio assumed that a chatbot cannot possibly start a conversation, so we
+    # can't just have the greeting there automatically, it needs to be in
+    # response to a user message.
+    if len(file_data['history']) == 0 and file_data['char_greeting'] is not None:
+        return f"{file_data['char_name']}: {file_data['char_greeting']}"
       
     prompt = build_prompt_for(history=file_data['history'],
                               user_message=user_input,
