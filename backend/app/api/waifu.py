@@ -130,18 +130,20 @@ def questions():
     output = llm(
         "Q:{} A: ".format(messageText),
         max_tokens=1024,
-        stop=["Q:", "\n"],
+        stop=["Q:", "###"],
         echo=True,
         temperature=0.7,
-        repeat_penalty=1.1,
+        repeat_penalty=1.1
     )
     generated_text = output["choices"][0]["text"]
     questions = generated_text.split(" A: ")[0][2:].lstrip()
     answers = generated_text.split(" A: ")[1][1:].lstrip()
+    # replace_newline = answers.replace("\n", "<br>")
+    # remove_newline = answers.replace("\n", ",")
 
-    audio_data = textInput("2", answers)
+    # audio_data = textInput("2", remove_newline)
 
-    audioBase64 = base64.b64encode(audio_data).decode('utf-8') if audio_data else None
+    # audioBase64 = base64.b64encode(audio_data).decode('utf-8') if audio_data else None
 
     with open(os.path.abspath(os.path.join("app/engine", "character.json")), "r") as f:
         f.seek(0)  # Move to the beginning of the file
@@ -149,8 +151,8 @@ def questions():
 
     output_json = {
         "questions": file_data['user_name'] + ": " + questions,
-        "bot_reply": file_data['char_name'] + ": " + answers,
-        "audio": audioBase64,
+        "bot_reply": answers,
+        "audio": None,
         "emotions": None,
     }
     return json.dumps(output_json)
